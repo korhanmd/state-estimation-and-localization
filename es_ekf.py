@@ -170,7 +170,7 @@ for k in range(1, imu_f.data.shape[0]):  # start at 1 b/c we have initial predic
     # 1.1 Linearize the motion model and compute Jacobians
     F_k = np.identity(9)
     F_k[:3, 3:6] = np.identity(3)*delta_t
-    F_k[3:6, 6:] = -skew_symmetric(C_ns@imu_f.data[k-1])*delta_t
+    F_k[3:6, 6:] = -C_ns@skew_symmetric(imu_f.data[k-1])*delta_t
 
     Q_k = np.identity(6)
     Q_k[:3, :3] = np.identity(3)*var_imu_f*delta_t**2
