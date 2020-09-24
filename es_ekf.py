@@ -136,16 +136,19 @@ lidar_i = 0
 ################################################################################################
 def measurement_update(sensor_var, p_cov_check, y_k, p_check, v_check, q_check):
     # 3.1 Compute Kalman Gain
+    R = np.identity(3)*sensor_var
+    K_k = p_cov_check@h_jac.T@np.linalg.inv(h_jac@p_cov_check@h_jac.T + R)
 
     # 3.2 Compute error state
+    error = K_k@(y_k.reshape(3) - p_check)
 
     # 3.3 Correct predicted state
+    p_hat = p_check + error[:3]
+    v_hat = v_check + error[3:6]
+    q_hat = Quaternion(euler=error[6:]).quat_mult_right(q_check)
 
     # 3.4 Compute corrected covariance
-    p_hat = p_check
-    v_hat = v_check
-    q_hat = q_check
-    p_cov_hat = p_cov_check
+    p_cov_hat = (np.identity(9) - K_k@h_jac)@p_cov_check
 
     return p_hat, v_hat, q_hat, p_cov_hat
 
